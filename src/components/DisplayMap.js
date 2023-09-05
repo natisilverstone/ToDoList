@@ -1,0 +1,145 @@
+import  { useEffect, useRef } from "react";
+import { makeStyles } from "@material-ui/core/styles";
+import "ol/ol.css";
+import { Map, View } from "ol";
+import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
+import { OSM, Vector as VectorSource } from "ol/source";
+import { Style, Icon } from "ol/style";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+import LocationPin from "../images/marker-icon.png";
+import Select from "ol/interaction/Select";
+import Overlay from "ol/Overlay";
+import * as ReactDOM from "react-dom";
+// import './DisplayMap.css';
+
+const useStyles = makeStyles((theme) => ({
+  popupContainer: {
+    width: "100%",
+    height: "600px",
+    position: "relative",
+  },
+  popupContent: {
+    backgroundColor: "white",
+    border: "1px solid #ccc",
+    padding: "10px",
+    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+    maxWidth: "300px",
+  },
+  popupContentStrong: {
+    display: "block",
+    fontWeight: "bold",
+    marginBottom: "8px",
+  },
+  olPopup: {
+    maxWidth: "none",
+  },
+}));
+
+const DisplayMap = ({ tasks }) => {
+  const classes = useStyles();
+  const mapRef = useRef(null);
+  const layerRef = useRef(null);
+  const mapInstance = useRef(null);
+  const overlayRef = useRef(null);
+
+  useEffect(() => {
+    if (!mapInstance.current) {
+      mapInstance.current = new Map({
+        target: mapRef.current,
+        layers: [
+          new TileLayer({
+            source: new OSM(),
+          }),
+        ],
+        view: new View({
+          center: [0, 0],
+          zoom: 2,
+        }),
+      });
+      layerRef.current = new VectorLayer({
+        source: new VectorSource(),
+      });
+      mapInstance.current.addLayer(layerRef.current);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (mapInstance.current) {
+      layerRef.current.getSource().clear();
+      const features = tasks.map((task) => {
+        const markerFeature = new Feature({
+          geometry: new Point(task.taskLocation),
+        });
+
+        const iconStyle = new Style({
+          image: new Icon({
+            src: LocationPin,
+            color: task.isCompleted ? "lightgreen" : "white",
+            anchor: [0.5, 1],
+          }),
+        });
+
+        markerFeature.setStyle(iconStyle);
+        return markerFeature;
+      });
+
+      layerRef.current.getSource().addFeatures(features);
+    }
+  }, [tasks]);
+
+  useEffect(() => {
+    if (mapInstance.current) {
+      const selectInteraction = new Select();
+      mapInstance.current.addInteraction(selectInteraction);
+
+      selectInteraction.on("select", (event) => {
+        const selectedFeature = event.selected[0];
+
+        if (selectedFeature) {
+          const coordinates = selectedFeature.getGeometry().getCoordinates();
+          const taskDetails = tasks.find(
+            (task) =>
+              task.taskLocation[0] === coordinates[0] &&
+              task.taskLocation[1] === coordinates[1]
+          );
+          if (taskDetails) {
+            if (!overlayRef.current) {
+              overlayRef.current = new Overlay({
+                element: document.createElement("div"),
+                positioning: "top-center",
+                offset: [0, -15],
+              });
+
+              mapInstance.current.addOverlay(overlayRef.current);
+            }
+
+            const popupContent = (
+              <div className={classes.olPopup}>
+                <strong>Task Details</strong>
+                <p>Task Name: {taskDetails.taskName}</p>
+                <p>Task Subject: {taskDetails.taskSubject}</p>
+              </div>
+            );
+
+            ReactDOM.render(popupContent, overlayRef.current.getElement());
+            overlayRef.current.setPosition(coordinates);
+          }
+        } else {
+          if (overlayRef.current) {
+            overlayRef.current.setPosition(undefined);
+          }
+        }
+      });
+    }
+  }, [tasks]);
+
+  return (
+    <div
+      ref={mapRef}
+      style={{ width: "100%", height: "600px", paddingTop: "200px" }}
+    />
+  );
+};
+
+export default DisplayMap;
