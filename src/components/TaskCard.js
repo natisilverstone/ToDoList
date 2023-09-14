@@ -1,4 +1,3 @@
-import { useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
@@ -10,27 +9,25 @@ import EditIcon from "@material-ui/icons/Edit";
 import { green } from "@mui/material/colors";
 
 function TaskCard({ task, onDelete, onEdit, onCompleteChange }) {
-  const [completed, setCompleted] = useState(false);
-
   function formatDate(date) {
     const options = { year: "numeric", month: "numeric", day: "numeric" };
     return new Date(date).toLocaleDateString("en-US", options);
   }
 
   const handleComplete = () => {
-    setCompleted(!completed);
-    onCompleteChange(task.id, !completed);
+    console.log(task.isCompleted);
+    onCompleteChange(!task.isCompleted, task);
   };
 
   return (
     <Card
       sx={{
         maxWidth: 250,
-        border: completed ? "1px solid green" : "1px solid gray",
-        outline: completed ? "1px solid green" : "none",
-        textDecoration: completed ? "line-through" : "none",
-        backgroundColor: completed ? "#92b093" : "",
-        color: completed ? "white" : "black",
+        border: task.isCompleted ? "1px solid green" : "1px solid gray",
+        outline: task.isCompleted ? "1px solid green" : "none",
+        textDecoration: task.isCompleted ? "line-through" : "none",
+        backgroundColor: task.isCompleted ? "#92b093" : "",
+        color: task.isCompleted ? "white" : "black",
       }}
     >
       <CardContent>
@@ -39,7 +36,10 @@ function TaskCard({ task, onDelete, onEdit, onCompleteChange }) {
         <Typography>Priority: {task.myPriority}</Typography>
         <Typography>Due Date: {formatDate(task.myDate)}</Typography>
       </CardContent>
-      <CardActions disableSpacing>
+      <CardActions
+        disableSpacing
+        style={{ display: "flex", justifyContent: "space-between" }}
+      >
         <IconButton aria-label="add to completed" onClick={handleComplete}>
           <CheckIcon style={{ color: green[500] }} />
         </IconButton>

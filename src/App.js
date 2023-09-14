@@ -1,8 +1,10 @@
+import React, { useState, useEffect } from "react";
 import Tasks from "./tasks/Tasks";
 import { createTheme, ThemeProvider } from "@material-ui/core";
-import ScrollToBottomButton from "./components/ScrollToBottom";
+import ScrollToBottom from "./components/ScrollToBottom";
 import { TaskProvider } from "./tasks/TaskContext";
-// comment
+import ScrollToTop from "./components/ScrollToTop";
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -36,12 +38,14 @@ const theme = createTheme({
 });
 
 const App = () => {
+
   return (
     <ThemeProvider theme={theme}>
       <TaskProvider>
         <div>
           <Tasks />
-          <ScrollToBottomButton />
+          <ScrollToTop />
+          <ScrollToBottom />
         </div>
       </TaskProvider>
     </ThemeProvider>

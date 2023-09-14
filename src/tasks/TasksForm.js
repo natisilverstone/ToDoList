@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import TextField from "@material-ui/core/TextField";
+import TextInput from "../components/TextInput";
 import Grid from "@material-ui/core/Grid";
 import DatePicker from "../components/DatePicker";
 import { useForm, Form } from "../components/useForm";
@@ -12,24 +12,20 @@ const initialValues = {
   id: 0,
   taskName: "",
   taskSubject: "",
-  myPriority: 5,
+  myPriority: 1,
   myDate: new Date(),
-  taskLocation: [0, 0],
-  isCompleted: 0,
+  taskLocation: [4, 0],
+  isCompleted: false,
 };
 
 export default function TasksForm({ addOrEdit, recordForEdit }) {
-  const { values, setValues, handleInputChange, resetForm } = useForm(
-    initialValues,
-    true
-  );
-
-  const handleSubmit = (e) => {
-    addOrEdit(values, resetForm);
-    resetForm();
-  };
-
-  const onClick = (subject) => setValues({ ...values, taskSubject: subject });
+  const {
+    values,
+    setValues,
+    handleInputChange,
+    resetForm,
+    handleInputChangeDate,
+  } = useForm(initialValues, true);
 
   useEffect(() => {
     if (recordForEdit != null)
@@ -38,44 +34,34 @@ export default function TasksForm({ addOrEdit, recordForEdit }) {
       });
   }, [recordForEdit, setValues]);
 
-  const handleLocationSelected = (location) => {
-    setValues((prevValues) => ({ ...prevValues, taskLocation: location }));
+  const onClickSubject = (subject) =>
+    setValues((prevValues) => ({ ...prevValues, taskSubject: subject }));
+
+  const handleSubmit = () => {
+    console.log(values);
+    addOrEdit(values, resetForm);
+    resetForm();
   };
 
   return (
     <Form onSubmit={handleSubmit}>
       <Grid container>
         <Grid item xs={6}>
-          <TextField
-            name="taskName"
-            label="TaskName"
-            placeholder="Enter Your Task"
-            multiline
-            variant="outlined"
-            value={values.taskName}
-            onChange={handleInputChange}
-          />
+          <TextInput values={values} handleInputChange={handleInputChange} />
           <DatePicker
-            label="Date"
-            name="myDate"
-            value={values.myDate}
-            onChange={handleInputChange}
+            values={values}
+            handleInputChangeDate={handleInputChangeDate}
           />
         </Grid>
         <Grid item xs={6}>
-          <Priority
-            name="myPriority"
-            label="Priority"
-            value={values.myPriority}
-            onChange={handleInputChange}
-          />
+          <Priority values={values} handleInputChange={handleInputChange} />
           <Subject
-            onClick={onClick}
+            onClickSubject={onClickSubject}
             values={values}
-            onChange={handleInputChange}
+            handleInputChange={handleInputChange}
           />
         </Grid>
-        <OpenLayersMap onLocationSelected={handleLocationSelected} />
+        <OpenLayersMap handleLocationSelected={handleInputChange} />
 
         <div>
           <Button text="Create" type="submit" />

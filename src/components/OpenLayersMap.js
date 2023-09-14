@@ -1,14 +1,14 @@
-import  { useEffect, useRef } from 'react';
-import 'ol/ol.css';
-import { Map, View } from 'ol';
-import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
-import { OSM, Vector as VectorSource } from 'ol/source';
-import { Style, Icon } from 'ol/style';
-import Feature from 'ol/Feature';
-import Point from 'ol/geom/Point';
-import LocationPin from '../images/marker-icon.png';
+import { useEffect, useRef } from "react";
+import "ol/ol.css";
+import { Map, View } from "ol";
+import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
+import { OSM, Vector as VectorSource } from "ol/source";
+import { Style, Icon } from "ol/style";
+import Feature from "ol/Feature";
+import Point from "ol/geom/Point";
+import LocationPin from "../images/marker-icon.png";
 
-const OpenLayersMap = ({ onLocationSelected }) => {
+const OpenLayersMap = ({ handleLocationSelected }) => {
   const mapRef = useRef(null);
   const mapInstance = useRef(null);
 
@@ -32,9 +32,9 @@ const OpenLayersMap = ({ onLocationSelected }) => {
       });
       mapInstance.current.addLayer(markersLayer);
 
-      mapInstance.current.on('click', (event) => {
+      mapInstance.current.on("click", (event) => {
         const clickedCoordinate = event.coordinate;
-        onLocationSelected(clickedCoordinate);
+        handleLocationSelected(clickedCoordinate);
         markersLayer.getSource().clear();
 
         const markerFeature = new Feature({
@@ -52,9 +52,19 @@ const OpenLayersMap = ({ onLocationSelected }) => {
         markersLayer.getSource().addFeature(markerFeature);
       });
     }
-  }, [onLocationSelected]);
+  }, [handleLocationSelected]);
 
-  return <div ref={mapRef} style={{ width: '100%', height: '200px', paddingTop: '25px', paddingBottom: '25px' }} />;
+  return (
+    <div
+      ref={mapRef}
+      style={{
+        width: "100%",
+        height: "200px",
+        paddingTop: "25px",
+        paddingBottom: "25px",
+      }}
+    />
+  );
 };
 
 export default OpenLayersMap;

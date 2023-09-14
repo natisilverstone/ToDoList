@@ -9,14 +9,14 @@ import SentimentVerySatisfiedIcon from "@material-ui/icons/SentimentVerySatisfie
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 
-const StyledRating = withStyles({
-  iconFilled: {
-    color: "#ff6d75",
-  },
-  iconHover: {
-    color: "#ff3d47",
-  },
-})(Rating);
+// const StyledRating = withStyles({
+//   iconFilled: {
+//     color: "#ff6d75",
+//   },
+//   iconHover: {
+//     color: "#ff3d47",
+//   },
+// })(Rating);
 
 const customIcons = {
   1: {
@@ -49,17 +49,17 @@ IconContainer.propTypes = {
   value: PropTypes.number.isRequired,
 };
 
-export default function CustomizedRatings({ name, value, label, onChange }) {
+export default function CustomizedRatings({ handleInputChange,values}) {
   return (
     <div>
       <Box component="fieldset" mb={3} borderColor="transparent">
         <Typography component="legend">Priority</Typography>
         <Rating
-          label={label}
-          value={value}
-          name={name}
-          onChange={onChange}
-          defaultValue={2}
+          name="myPriority"
+          value={Number(values.myPriority)}
+          onChange={(newRating) => {
+            handleInputChange(newRating);
+          }}
           max={10}
         />
       </Box>

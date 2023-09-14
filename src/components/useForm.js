@@ -5,7 +5,13 @@ export function useForm(initialFValues, validateOnChange = false) {
   const [values, setValues] = useState(initialFValues);
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
+    setValues({
+      ...values,
+      [name]: value,
+    });
+  };
+  const handleInputChangeDate = (name, value) => {
     setValues({
       ...values,
       [name]: value,
@@ -21,6 +27,7 @@ export function useForm(initialFValues, validateOnChange = false) {
     setValues,
     handleInputChange,
     resetForm,
+    handleInputChangeDate,
   };
 }
 

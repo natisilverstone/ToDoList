@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Fab from "@material-ui/core/Fab";
-import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown";
+import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp";
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -13,17 +13,17 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const ScrollDownButton = () => {
+const ScrollToButton = () => {
   const classes = useStyles();
   const [isVisible, setIsVisible] = useState(false);
 
   const handleScroll = () => {
-    // Show the button when scrolling up, hide when at the bottom
-    setIsVisible(window.scrollY < document.documentElement.scrollHeight - window.innerHeight);
+    // Show the button when scrolling down, hide when at the top
+    setIsVisible(window.scrollY > 300);
   };
 
-  const scrollToBottom = () => {
-    window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "smooth" });
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -39,14 +39,14 @@ const ScrollDownButton = () => {
   return (
     <Fab
       color="primary"
-      aria-label="scroll to bottom"
+      aria-label="scroll to top"
       className={classes.root}
-      onClick={scrollToBottom}
+      onClick={scrollToTop}
       style={{ display: isVisible ? "block" : "none" }}
     >
-      <KeyboardArrowDownIcon />
+      <KeyboardArrowUpIcon />
     </Fab>
   );
 };
 
-export default ScrollDownButton;
+export default ScrollToButton;

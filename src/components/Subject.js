@@ -26,11 +26,11 @@ const chipData = [
   { avatar: "O", label: "Other" },
 ];
 
-export default function Chips({ onClick, values }) {
+export default function Chips({ onClickSubject, values }) {
   const classes = useStyles();
 
   const handleClick = (subject) => {
-    onClick(subject);
+    onClickSubject(subject);
   };
 
   return (

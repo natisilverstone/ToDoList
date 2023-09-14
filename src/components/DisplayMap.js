@@ -1,5 +1,4 @@
-import  { useEffect, useRef } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import React, { useEffect, useRef } from "react";
 import "ol/ol.css";
 import { Map, View } from "ol";
 import { Tile as TileLayer, Vector as VectorLayer } from "ol/layer";
@@ -13,31 +12,8 @@ import Overlay from "ol/Overlay";
 import * as ReactDOM from "react-dom";
 // import './DisplayMap.css';
 
-const useStyles = makeStyles((theme) => ({
-  popupContainer: {
-    width: "100%",
-    height: "600px",
-    position: "relative",
-  },
-  popupContent: {
-    backgroundColor: "white",
-    border: "1px solid #ccc",
-    padding: "10px",
-    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
-    maxWidth: "300px",
-  },
-  popupContentStrong: {
-    display: "block",
-    fontWeight: "bold",
-    marginBottom: "8px",
-  },
-  olPopup: {
-    maxWidth: "none",
-  },
-}));
-
-const DisplayMap = ({ tasks }) => {
-  const classes = useStyles();
+const DisplayMap = ({ tasks, createGeoJSONLocation }) => {
+  
   const mapRef = useRef(null);
   const layerRef = useRef(null);
   const mapInstance = useRef(null);
@@ -89,49 +65,48 @@ const DisplayMap = ({ tasks }) => {
   }, [tasks]);
 
   useEffect(() => {
-    if (mapInstance.current) {
-      const selectInteraction = new Select();
-      mapInstance.current.addInteraction(selectInteraction);
+    if (!mapInstance.current) return;
+    const selectInteraction = new Select();
+    mapInstance.current.addInteraction(selectInteraction);
 
-      selectInteraction.on("select", (event) => {
-        const selectedFeature = event.selected[0];
+    selectInteraction.on("select", (event) => {
+      const selectedFeature = event.selected[0];
 
-        if (selectedFeature) {
-          const coordinates = selectedFeature.getGeometry().getCoordinates();
-          const taskDetails = tasks.find(
-            (task) =>
-              task.taskLocation[0] === coordinates[0] &&
-              task.taskLocation[1] === coordinates[1]
+      if (selectedFeature) {
+        const coordinates = selectedFeature.getGeometry().getCoordinates();
+        const taskDetails = tasks.find(
+          (task) =>
+            task.taskLocation[0] === coordinates[0] &&
+            task.taskLocation[1] === coordinates[1]
+        );
+        if (taskDetails) {
+          if (!overlayRef.current) {
+            overlayRef.current = new Overlay({
+              element: document.createElement("div"),
+              positioning: "top-center",
+              offset: [0, -15],
+            });
+
+            mapInstance.current.addOverlay(overlayRef.current);
+          }
+
+          const popupContent = (
+            <div className="popup-content">
+              <strong>Task Details</strong>
+              <p>Task Name: {taskDetails.taskName}</p>
+              <p>Task Subject: {taskDetails.taskSubject}</p>
+            </div>
           );
-          if (taskDetails) {
-            if (!overlayRef.current) {
-              overlayRef.current = new Overlay({
-                element: document.createElement("div"),
-                positioning: "top-center",
-                offset: [0, -15],
-              });
 
-              mapInstance.current.addOverlay(overlayRef.current);
-            }
-
-            const popupContent = (
-              <div className={classes.olPopup}>
-                <strong>Task Details</strong>
-                <p>Task Name: {taskDetails.taskName}</p>
-                <p>Task Subject: {taskDetails.taskSubject}</p>
-              </div>
-            );
-
-            ReactDOM.render(popupContent, overlayRef.current.getElement());
-            overlayRef.current.setPosition(coordinates);
-          }
-        } else {
-          if (overlayRef.current) {
-            overlayRef.current.setPosition(undefined);
-          }
+          ReactDOM.render(popupContent, overlayRef.current.getElement());
+          overlayRef.current.setPosition(coordinates);
         }
-      });
-    }
+      } else {
+        if (overlayRef.current) {
+          overlayRef.current.setPosition(undefined);
+        }
+      }
+    });
   }, [tasks]);
 
   return (
