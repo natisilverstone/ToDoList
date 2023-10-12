@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
-import Tasks from "./tasks/Tasks";
+import React from "react";
+import MainPage from "./views/MainPage";
 import { createTheme, ThemeProvider } from "@material-ui/core";
 import ScrollToBottom from "./components/ScrollToBottom";
-import { TaskProvider } from "./tasks/TaskContext";
 import ScrollToTop from "./components/ScrollToTop";
 
 const theme = createTheme({
@@ -38,16 +37,11 @@ const theme = createTheme({
 });
 
 const App = () => {
-
   return (
     <ThemeProvider theme={theme}>
-      <TaskProvider>
-        <div>
-          <Tasks />
-          <ScrollToTop />
-          <ScrollToBottom />
-        </div>
-      </TaskProvider>
+      <MainPage />
+      <ScrollToTop />
+      <ScrollToBottom />
     </ThemeProvider>
   );
 };

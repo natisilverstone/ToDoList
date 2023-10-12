@@ -8,15 +8,14 @@ import DeleteIcon from "@material-ui/icons/Delete";
 import EditIcon from "@material-ui/icons/Edit";
 import { green } from "@mui/material/colors";
 
-function TaskCard({ task, onDelete, onEdit, onCompleteChange }) {
+function TaskCard({ task, onDelete, onEdit, onToggleCompleted }) {
   function formatDate(date) {
     const options = { year: "numeric", month: "numeric", day: "numeric" };
     return new Date(date).toLocaleDateString("en-US", options);
   }
 
   const handleComplete = () => {
-    console.log(task.isCompleted);
-    onCompleteChange(!task.isCompleted, task);
+    onToggleCompleted(!task.isCompleted, task);
   };
 
   return (

@@ -1,51 +1,35 @@
+import { v4 } from "uuid";
+
 const KEYS = {
-    tasks: 'tasks',
-    taskId: 'taskId',
-}
+  tasks: "tasks",
+};
 
 export function insertTask(data) {
-    let tasks = getAllTasks();
-    data.id = generateTaskId();
-    tasks.push(data);
-    localStorage.setItem(KEYS.tasks, JSON.stringify(tasks));
+  let tasks = getAllTasks();
+  data.id = v4();
+  tasks.push(data);
+  localStorage.setItem(KEYS.tasks, JSON.stringify(tasks));
 }
 
 export function updateTask(data) {
-    let tasks = getAllTasks();
-    let recordIndex = tasks.findIndex(task => task.id == data.id);
-    tasks[recordIndex] = { ...data };
-    console.log(tasks[recordIndex]);
-    localStorage.setItem(KEYS.tasks, JSON.stringify(tasks));
-}
-
-export function generateTaskId() {
-    if (localStorage.getItem(KEYS.taskId) == 0) {
-        localStorage.setItem(KEYS.taskId, 0);
-    }
-    let id = parseInt(localStorage.getItem(KEYS.taskId));
-    localStorage.setItem(KEYS.taskId, (++id).toString());
-
-    return id;
+  let tasks = getAllTasks();
+  let recordIndex = tasks.findIndex((task) => task.id == data.id);
+  tasks[recordIndex] = { ...data };
+  console.log(tasks[recordIndex]);
+  localStorage.setItem(KEYS.tasks, JSON.stringify(tasks));
 }
 
 export function deleteTask(data) {
-    let tasks = getAllTasks();
-    let updateTasks = tasks.filter(task => task.id != data.id);
-    localStorage.setItem('tasks', JSON.stringify(updateTasks));
-    let id = parseInt(localStorage.getItem(KEYS.taskId));
-    localStorage.setItem(KEYS.taskId, (--id).toString());
-}
-
-export function completeTask(data) {
-    let tasks = getAllTasks();
-    let completedTask = tasks.find(task => task.id == data.id);
-    completedTask.isCompleted = !completedTask.isCompleted;
+  let tasks = getAllTasks();
+  let updateTasks = tasks.filter((task) => task.id != data.id);
+  localStorage.setItem(KEYS.tasks, JSON.stringify(updateTasks));
 }
 
 export function getAllTasks() {
-    if (localStorage.getItem(KEYS.tasks) == null) {
-        localStorage.setItem(KEYS.tasks, JSON.stringify([]));
-    }
-    let tasks = JSON.parse(localStorage.getItem(KEYS.tasks));
-    return tasks;
+  if (localStorage.getItem(KEYS.tasks) == null) {
+    localStorage.setItem(KEYS.tasks, JSON.stringify([]));
+  }
+  let tasks = JSON.parse(localStorage.getItem(KEYS.tasks));
+  return tasks;
 }
+

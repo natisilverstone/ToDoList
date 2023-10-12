@@ -18,36 +18,36 @@ import Box from "@material-ui/core/Box";
 //   },
 // })(Rating);
 
-const customIcons = {
-  1: {
-    icon: <SentimentVeryDissatisfiedIcon />,
-    label: "Very Dissatisfied",
-  },
-  2: {
-    icon: <SentimentDissatisfiedIcon />,
-    label: "Dissatisfied",
-  },
-  3: {
-    icon: <SentimentSatisfiedIcon />,
-    label: "Neutral",
-  },
-  4: {
-    icon: <SentimentSatisfiedAltIcon />,
-    label: "Satisfied",
-  },
-  5: {
-    icon: <SentimentVerySatisfiedIcon />,
-    label: "Very Satisfied",
-  },
-};
+// const customIcons = {
+//   1: {
+//     icon: <SentimentVeryDissatisfiedIcon />,
+//     label: "Very Dissatisfied",
+//   },
+//   2: {
+//     icon: <SentimentDissatisfiedIcon />,
+//     label: "Dissatisfied",
+//   },
+//   3: {
+//     icon: <SentimentSatisfiedIcon />,
+//     label: "Neutral",
+//   },
+//   4: {
+//     icon: <SentimentSatisfiedAltIcon />,
+//     label: "Satisfied",
+//   },
+//   5: {
+//     icon: <SentimentVerySatisfiedIcon />,
+//     label: "Very Satisfied",
+//   },
+// };
 
-function IconContainer({ value, ...other }) {
-  return <span {...other}>{customIcons[value].icon}</span>;
-}
+// function IconContainer({ value, ...other }) {
+//   return <span {...other}>{customIcons[value].icon}</span>;
+// }
 
-IconContainer.propTypes = {
-  value: PropTypes.number.isRequired,
-};
+// IconContainer.propTypes = {
+//   value: PropTypes.number.isRequired,
+// };
 
 export default function CustomizedRatings({ handleInputChange,values}) {
   return (

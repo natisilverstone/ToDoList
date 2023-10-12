@@ -8,8 +8,8 @@ const useStyles = makeStyles((theme) => ({
     position: "fixed",
     bottom: theme.spacing(2),
     right: theme.spacing(2),
-    zIndex: 1000, // Ensure it's above other elements
-    display: "none", // Initially hidden
+    zIndex: 1000,
+    display: "none",
   },
 }));
 
@@ -18,7 +18,6 @@ const ScrollToButton = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   const handleScroll = () => {
-    // Show the button when scrolling down, hide when at the top
     setIsVisible(window.scrollY > 300);
   };
 
@@ -27,10 +26,7 @@ const ScrollToButton = () => {
   };
 
   useEffect(() => {
-    // Add scroll event listener when component mounts
     window.addEventListener("scroll", handleScroll);
-
-    // Clean up the event listener when the component unmounts
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };

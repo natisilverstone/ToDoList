@@ -6,18 +6,39 @@ import { OSM, Vector as VectorSource } from "ol/source";
 import { Style, Icon } from "ol/style";
 import Feature from "ol/Feature";
 import Point from "ol/geom/Point";
-import LocationPin from "../images/marker-icon.png";
+import LocationPin from "../assets/marker-icon.png";
 import Select from "ol/interaction/Select";
 import Overlay from "ol/Overlay";
 import * as ReactDOM from "react-dom";
-// import './DisplayMap.css';
+import { makeStyles } from "@material-ui/core";
 
-const DisplayMap = ({ tasks, createGeoJSONLocation }) => {
-  
+const useStyles = makeStyles(() => ({
+  popupContainerStyle: {
+    width: "100%",
+    height: "100%",
+    position: "relative",
+  },
+  popupContentStyle: {
+    backgroundColor: "white",
+    border: "1px solid #ccc",
+    padding: "10px",
+    boxShadow: "0px 2px 6px rgba(0, 0, 0, 0.1)",
+    maxWidth: "300px",
+  },
+  strongStyle: {
+    display: "block",
+    fontWeight: "bold",
+    marginBottom: "8px",
+  },
+}));
+
+const DisplayMap = ({ tasks, handleLocationSelected, openPopup }) => {
+  const classes = useStyles();
+
   const mapRef = useRef(null);
   const layerRef = useRef(null);
   const mapInstance = useRef(null);
-  const overlayRef = useRef(null);
+  const viewlayRef = useRef(null);
 
   useEffect(() => {
     if (!mapInstance.current) {
@@ -41,80 +62,127 @@ const DisplayMap = ({ tasks, createGeoJSONLocation }) => {
   }, []);
 
   useEffect(() => {
-    if (mapInstance.current) {
-      layerRef.current.getSource().clear();
-      const features = tasks.map((task) => {
+    if (!mapInstance.current) {
+      return;
+    }
+
+    layerRef.current.getSource().clear();
+    const features = tasks.map((task) => {
+      const markerFeature = new Feature({
+        geometry: new Point(task.taskLocation),
+      });
+
+      const iconStyle = new Style({
+        image: new Icon({
+          src: LocationPin,
+          color: openPopup ? "red" : task.isCompleted ? "lightgreen" : "white",
+          anchor: [0.5, 1],
+        }),
+      });
+
+      markerFeature.setStyle(iconStyle);
+      return markerFeature;
+    });
+
+    if (openPopup) {
+      mapInstance.current.on("click", (event) => {
+        const clickedCoordinate = event.coordinate;
+        handleLocationSelected(clickedCoordinate);
+        layerRef.current.getSource().clear();
+
         const markerFeature = new Feature({
-          geometry: new Point(task.taskLocation),
+          geometry: new Point(clickedCoordinate),
         });
 
         const iconStyle = new Style({
           image: new Icon({
             src: LocationPin,
-            color: task.isCompleted ? "lightgreen" : "white",
             anchor: [0.5, 1],
           }),
         });
 
         markerFeature.setStyle(iconStyle);
-        return markerFeature;
+        layerRef.current.getSource().addFeature(markerFeature);
       });
+    } else {
+      if (mapInstance.current) {
+        const selectInteraction = new Select();
+        mapInstance.current.addInteraction(selectInteraction);
 
-      layerRef.current.getSource().addFeatures(features);
-    }
-  }, [tasks]);
+        selectInteraction.on("select", (event) => {
+          const selectedFeature = event.selected[0];
 
-  useEffect(() => {
-    if (!mapInstance.current) return;
-    const selectInteraction = new Select();
-    mapInstance.current.addInteraction(selectInteraction);
+          if (selectedFeature) {
+            const coordinates = selectedFeature.getGeometry().getCoordinates();
+            const taskDetails = tasks.find(
+              (task) =>
+                task.taskLocation[0] === coordinates[0] &&
+                task.taskLocation[1] === coordinates[1]
+            );
+            if (taskDetails) {
+              if (!viewlayRef.current) {
+                viewlayRef.current = new Overlay({
+                  element: document.createElement("div"),
+                  positioning: "top-center",
+                  offset: [0, -15],
+                });
 
-    selectInteraction.on("select", (event) => {
-      const selectedFeature = event.selected[0];
+                mapInstance.current.addOverlay(viewlayRef.current);
+              }
 
-      if (selectedFeature) {
-        const coordinates = selectedFeature.getGeometry().getCoordinates();
-        const taskDetails = tasks.find(
-          (task) =>
-            task.taskLocation[0] === coordinates[0] &&
-            task.taskLocation[1] === coordinates[1]
-        );
-        if (taskDetails) {
-          if (!overlayRef.current) {
-            overlayRef.current = new Overlay({
-              element: document.createElement("div"),
-              positioning: "top-center",
-              offset: [0, -15],
-            });
+              const popupContent = (
+                <div className={classes.popupContentStyle}>
+                  <div className={classes.strongStyle}>Task Details</div>
+                  <p>Task Name: {taskDetails.taskName}</p>
+                  <p>Task Subject: {taskDetails.taskSubject}</p>
+                </div>
+              );
 
-            mapInstance.current.addOverlay(overlayRef.current);
+              ReactDOM.render(popupContent, viewlayRef.current.getElement());
+              viewlayRef.current.setPosition(coordinates);
+            }
+          } else {
+            if (viewlayRef.current) {
+              viewlayRef.current.setPosition(null);
+            }
           }
-
-          const popupContent = (
-            <div className="popup-content">
-              <strong>Task Details</strong>
-              <p>Task Name: {taskDetails.taskName}</p>
-              <p>Task Subject: {taskDetails.taskSubject}</p>
-            </div>
-          );
-
-          ReactDOM.render(popupContent, overlayRef.current.getElement());
-          overlayRef.current.setPosition(coordinates);
-        }
-      } else {
-        if (overlayRef.current) {
-          overlayRef.current.setPosition(undefined);
-        }
+        });
       }
-    });
-  }, [tasks]);
+    }
+    layerRef.current.getSource().addFeatures(features);
+  }, [
+    classes.popupContentStyle,
+    classes.strongStyle,
+    handleLocationSelected,
+    openPopup,
+    tasks,
+  ]);
 
-  return (
-    <div
-      ref={mapRef}
-      style={{ width: "100%", height: "600px", paddingTop: "200px" }}
-    />
-  );
+  if (openPopup) {
+    return (
+      <div
+        ref={mapRef}
+        style={{
+          width: "100%",
+          height: "200px",
+          paddingTop: "25px",
+          paddingBottom: "25px",
+        }}
+      />
+    );
+  } else {
+    return (
+      <div
+        ref={mapRef}
+        style={{
+          width: "100%",
+          height: "600px",
+          paddingTop: "100px",
+          paddingBottom: "25px",
+        }}
+      />
+    );
+  }
 };
 
 export default DisplayMap;
